@@ -1,5 +1,7 @@
 # Docker Cheatsheet for demos
 
+## 1. The Basics
+
 After installing docker you should add your user to the docker group, so that you don’t have to sudo every command:
 
 	sudo usermod -aG docker <user>
@@ -51,6 +53,10 @@ Delete a container, by deleting the R/W container layers:
 
     docker rm <container_id>
     
+Stop and delete the container:
+
+    docker rm -f <container_id>
+    
 Delete a container image, by deleting the R/O container layers:
 
     docker rmi <container_image_name>
@@ -71,3 +77,34 @@ Pull a specific image from a remote repo:
 
     docker pull <user/repo_name:tag>
     
+## 2. Build your own container
+
+### 2.1 Manually
+
+Run Ubuntu container and create an app inside:
+
+    docker run -it --name testapp ubuntu /bin/bash
+        echo -e "#! /bin/bash\necho It works!" > myapp.sh
+        chmod +x myapp.sh
+        exit
+
+Save container layers as R/O, and create a new R/W layer (new image):
+
+    docker commit testapp <your_docker_id>/sinatra
+    
+Delete the container:
+
+    docker rm testapp
+    
+Run the app inside the container:
+
+    docker run --name testapp <your_docker_id>/sinatra /myapp.sh
+    
+Set executing myapp.sh as default when running <your_docker_id>/sinatra
+
+    docker commit --change='CMD [“/myapp.sh”]' testapp <your_docker_id>/sinatra
+    
+Run a container from the new docker without specifying the app inside the container:
+
+    docker rm testapp
+     
