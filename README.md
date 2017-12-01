@@ -29,16 +29,15 @@ See complete list of containers (running & exited):
 
 	docker ps -a
 	
-Run a Nginx web server in TCP port 80, open a shell, install vim and edit the default homepage to see it updates real-time
+Run a Nginx web server in TCP port 80, open a shell, install vim and edit the default homepage to see it updates in real-time:
 	
     docker run -d -p 80:80 --name webserver nginx
     docker exec -it webserver /bin/bash
-    apt-get update
-    apt-get install vim
-    cd /usr/share/nginx/html
-    vim index.html
+        apt-get update && apt-get install vim
+        cd /usr/share/nginx/html
+        vim index.html
     
-Run Firefox in a container, by opening a display server, finding out your IP address, and allowing connections from your local machine IP
+Run Firefox in a container, by opening a display server, finding out your IP address, and allowing connections from your local machine IP:
 
     open -a XQuartz
     ip=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
@@ -49,7 +48,7 @@ Stop a container, sending SIGTERM+SIGKILL:
 
     docker stop <container_id>
     
-Delete a container, by deleting the R/W container layers:
+Delete a container, by deleting its R/W container layers:
 
     docker rm <container_id>
     
@@ -57,7 +56,7 @@ Stop and delete the container:
 
     docker rm -f <container_id>
     
-Delete a container image, by deleting the R/O container layers:
+Delete a container image, by deleting its R/O container layers:
 
     docker rmi <container_image_name>
     
@@ -236,7 +235,7 @@ Run an additional container and pass it the IP address of the first container to
     docker run --rm -it -e TESTING_IP=$TESTING_IP your_docker_id>/containerip /bin/bash
     ping $TESTING_IP -c 2
     
-### 4.2 Linking containers using Docker link
+### 4.2 Linking containers with links
 
 Run one container:
 
@@ -249,7 +248,7 @@ Run an additional container and create a link/alias to the first one to ping it:
     
 This link option updates /etc/hosts in the new container with an entry for the linked container IP. But if that container restarts then this /etc/hosts is not updated and will keep pointing to the old IP
 
-### 4.3 Linking containers using Docker user networks
+### 4.3 Linking containers with user networks
 
 User-defined bridges that automatically discover containers and provide DNS (not /etc/hosts at all)
 
@@ -269,7 +268,7 @@ Connect to the first container and try pinging the second one using its name:
         
 ## 5. Docker Compose
 
-This is a tool to orchestrate a number of containers as a service by mean of a YML file.
+This is a tool to orchestrate a number of containers inside a service, by mean of a YML file.
 
 ### 5.1 Example 1 - Connectivity
 
