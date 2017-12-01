@@ -107,4 +107,38 @@ Set executing myapp.sh as default when running <your_docker_id>/sinatra
 Run a container from the new docker without specifying the app inside the container:
 
     docker rm testapp
-     
+    docker run --rm <your_docker_id>/sinatra
+    
+### 2.2 With Dockerfile
+
+Create 'myapp.sh' in your local environment, with the following content:
+
+	#! /bin/bash
+	echo "I am a cow!" | /usr/games/cowsay | /usr/games/lolcat -f 
+			
+Assign permissions to execute it:
+
+    chmod +x myapp.sh
+    
+Create a Dockerfile in your local environment, with the following content:
+
+	FROM ubuntu
+	RUN apt-get update && apt-get install -y cowsay lolcat && rm -rf /var/lib/apt/lists/*	—   delete caches
+	COPY myapp.sh /myapp/myapp.sh
+	CMD ["/myapp/myapp.sh"]
+
+Build and run your app:
+
+    docker build -t <your_docker_id>/myapp .
+    docker run --rm <your_docker_id>/myapp
+    
+See layers created for each command in Dockerfile:
+    
+    docker history <your_docker_id>/myapp | head -n 4
+    
+Upload it to dockerhub, delete the local copy and run it again:
+
+    docker login
+    docker push <your_docker_id>/myapp
+    docker rmi <your_docker_id>/myapp
+    docker run --rm <your_docker_id>/myapp
