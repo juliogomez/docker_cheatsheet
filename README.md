@@ -1,4 +1,4 @@
-# Docker Cheatsheet for demos
+# Cheatsheet for Docker demos
 
 ## 1. The Basics
 
