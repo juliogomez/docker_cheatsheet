@@ -259,10 +259,81 @@ Create a new docker network:
 
 Create two containers connected to that network:
     
-    docker run -d --net=mynet --name myapp1 your_docker_id>/containerip
-    docker run -d --net=mynet --name myapp2 your_docker_id>/containerip
+    docker run -d --net=mynet --name myapp1 <your_docker_id>/containerip
+    docker run -d --net=mynet --name myapp2 <your_docker_id>/containerip
     
 Connect to the first container and try pinging the second one using its name:
     
     docker exec -it myapp2 /bin/bash
         ping myapp1 -c 2
+        
+## 5. Docker Compose
+
+This is a tool to orchestrate a number of containers as a service by mean of a YML file.
+
+### 5.1 Example 1 - Connectivity
+
+Let's run two containers and verify connectivity between them using names.
+
+Create file docker-compose.yml:
+
+    myapp:
+	  image: <your_docker_id>/containerip
+	someclient
+	  image: <your_docker_id>/containerip
+	  container_name: someclient
+	  command: sleep 500
+	  links:
+	  - myapp
+
+Start the two defined containers in dettached mode:
+
+    docker-compose up -d
+    
+Check that the container for 'myapp' has been assigned a pseudo-random name, and 'someclient' is executing a different command.
+
+    dockers ps -a
+    
+Connect to 'someclient' and ping 'myapp' by its name, defined in the yml file:
+
+    docker exec -it someclient /bin/bash
+        ping myapp -c 2
+        
+There is connectivity between the two containers because of the 'links' definition.
+
+Stop both containers:
+
+    docker-compose kill
+    
+Remove both containers:
+
+    docker-compose rm -f
+    
+### 5.2 Example 2 - Load balance
+
+'haproxy' is a load-balancer serving in port 80 and redirecting traffic to containers in 'myapp'
+
+Create file docker-compose.yml:
+
+    myapp:
+      image: <your_docker_id>/containerip
+    haproxy:
+      image: dockercloud/haproxy
+      container_name: haproxy
+      links:
+        - myapp
+      ports:
+        - 80:80
+
+Start two containers for 'myapp' and one for 'haproxy', all in dettached mode:
+
+    docker-compose up --scale myapp=2 -d
+    
+Check port mapping for 'haproxy' (host 80 to haproxy 80) and 'containerip' using a totally different port (8000)
+
+    docker-compose ps
+    
+Obtain 'myapp' containers IP addresses by requesting 'haproxy' for it several times:
+
+    curl localhost:80/cgi-bin/ip
+
