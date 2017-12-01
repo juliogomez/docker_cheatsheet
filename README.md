@@ -136,9 +136,95 @@ See layers created for each command in Dockerfile:
     
     docker history <your_docker_id>/myapp | head -n 4
     
-Upload it to dockerhub, delete the local copy and run it again:
+## 3. Dockerhub and other registries
+    
+Upload it to the default dockerhub, delete the local copy and run it again from there:
 
     docker login
     docker push <your_docker_id>/myapp
     docker rmi <your_docker_id>/myapp
     docker run --rm <your_docker_id>/myapp
+    
+You can rename a container by changing its tag:
+
+    docker tag <your_docker_id>/myapp <your_docker_id>/cowapp:ver2
+    
+In order to upload your container to a different registry you need to build the image with the full registry name:
+
+    docker build -t <full_domain_name>/<your_id>/myapp .
+    docker push <full_domain_name>/<your_id>/myapp
+    
+## 4. Networking
+
+There is eth0 for the container and a peer veth in the host, with a virtual bridge from host to container. iptables make sure that traffic only flows between containers in the same bridge  (default docker0).
+
+See existing networks:
+
+    docker network ls
+    
+'bridge' maps to docker0 (shown when you run ifconfig in the host)
+
+'host' maps container to host (not recommended)
+
+'none' provides no connectivity
+
+Let's create a container that responds to HTTP requests with its own IP address:
+
+1.- In your local environment create the following directory structure:
+
+    mkdir ./www/
+    mkdir ./www/cgi-bin
+    
+2.- Create the script to find out container's IP address
+
+    vi ./www/cgi-bin/ip
+        #! /bin/sh
+        echo
+        echo "Container IP: $(ifconfig eth0 | awk '/inet addr/{print substr($2,6)}')"
+    
+3.- Create a Dockerfile with the following content:
+
+    FROM alpine:3.3
+	ADD www /www
+	RUN apk add --no-cache bash curl && chmod -R 700 /www/cgi-bin
+	EXPOSE 8000
+	CMD ["/bin/busybox", "httpd", "-f", "-h", "/www", "-p", "8000"] 
+
+4.- Build the image:
+
+    docker build -t <your_docker_id>/containerip .
+    
+5.- Run the container that offers its service in TCP port 8000 (but not available from the host!):
+
+    docker run -d --name myapp <your_docker_id>/containerip
+    
+6.- Connect to the container, check interface eth0 (the one connected to docker0 virtual bridge), and the IP returned by the HTTP server:
+
+    docker exec -it myapp /bin/bash
+        ifconfig
+        curl localhost:8000/cgi-bin/ip
+        exit
+    docker rm -f myapp
+
+7.- Let's make it now available from the host by mapping ports, and test that it shows the internal IP address of the container:
+
+    docker run -d -p 8000:8000 --name myapp <your_docker_id>/containerip
+    curl localhost:8000/cgi-bin/ip
+    
+8.- Check the exposed port for the image and container:
+
+    docker inspect --format "{{ .ContainerConfig.ExposedPorts }}" <your_docker_id>/containerip
+    docker port myapp
+    
+9.- Assign the port in the host to a variable in your local environment, and run the request again:
+
+    PORT=$(docker port myapp | cut -d ":" -f 2)
+    curl "localhost:$PORT/cgi-bin/ip"
+
+### 4.1 Linking containers with /etc/hosts (legacy)
+
+This way of linking containers is static and restarting containers will need linked containers to restart as well, so that port numbers are updated in /etc/hosts
+
+    docker run -d --name myapp <your_docker_id>/containerip
+    TESTING_IP=$(docker inspect --format "{{ .NetworkSettings.IPAddress }}" myapp)
+    echo $TESTING_IP
