@@ -154,11 +154,11 @@ In order to upload your container to a different registry you need to build the 
     docker build -t <full_domain_name>/<your_id>/myapp .
     docker push <full_domain_name>/<your_id>/myapp
     
-## 4. Networking
+## 4. Basic Networking
 
-There is eth0 for the container and a peer veth in the host, with a virtual bridge from host to container. iptables make sure that traffic only flows between containers in the same bridge  (default docker0).
+There is an eth0 for the container and a peer veth in the host, with a virtual bridge from host to container. iptables make sure that traffic only flows between containers in the same bridge  (default docker0).
 
-See existing networks:
+Check existing networks:
 
     docker network ls
     
@@ -225,6 +225,44 @@ Let's create a container that responds to HTTP requests with its own IP address:
 
 This way of linking containers is static and restarting containers will need linked containers to restart as well, so that port numbers are updated in /etc/hosts
 
+Run one container and store its IP address in a host variable:
+
     docker run -d --name myapp <your_docker_id>/containerip
     TESTING_IP=$(docker inspect --format "{{ .NetworkSettings.IPAddress }}" myapp)
     echo $TESTING_IP
+
+Run an additional container and pass it the IP address of the first container to ping it:
+
+    docker run --rm -it -e TESTING_IP=$TESTING_IP your_docker_id>/containerip /bin/bash
+    ping $TESTING_IP -c 2
+    
+### 4.2 Linking containers using Docker link
+
+Run one container:
+
+    docker run -d --name myapp <your_docker_id>/containerip
+    
+Run an additional container and create a link/alias to the first one to ping it:
+
+    docker run --rm -it --link myapp1:container1 <your_docker_id>/containerip /bin/bash
+        ping container1 -c 2
+    
+This link option updates /etc/hosts in the new container with an entry for the linked container IP. But if that container restarts then this /etc/hosts is not updated and will keep pointing to the old IP
+
+### 4.3 Linking containers using Docker user networks
+
+User-defined bridges that automatically discover containers and provide DNS (not /etc/hosts at all)
+
+Create a new docker network:
+
+    docker network create mynet
+
+Create two containers connected to that network:
+    
+    docker run -d --net=mynet --name myapp1 your_docker_id>/containerip
+    docker run -d --net=mynet --name myapp2 your_docker_id>/containerip
+    
+Connect to the first container and try pinging the second one using its name:
+    
+    docker exec -it myapp2 /bin/bash
+        ping myapp1 -c 2
