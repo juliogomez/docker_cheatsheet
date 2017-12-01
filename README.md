@@ -286,7 +286,7 @@ Create file docker-compose.yml:
 	  links:
 	  - myapp
 
-Start the two defined containers in dettached mode:
+Start the two defined containers in detached mode:
 
     docker-compose up -d
     
@@ -325,7 +325,7 @@ Create file docker-compose.yml:
       ports:
         - 80:80
 
-Start two containers for 'myapp' and one for 'haproxy', all in dettached mode:
+Start two containers for 'myapp' and one for 'haproxy', all in detached mode:
 
     docker-compose up --scale myapp=2 -d
     
@@ -337,3 +337,74 @@ Obtain 'myapp' containers IP addresses by requesting 'haproxy' for it several ti
 
     curl localhost:80/cgi-bin/ip
 
+### 5.3 Example 3 - WordPress
+
+WordPress deployment with two containers defined in this docker-compose.yml file:
+
+    wordpress:
+      image: wordpress
+      links:
+        - db:mysql
+      ports:
+        - 8080:80
+    
+    db:
+      image: mariadb
+      environment:
+        MYSQL_ROOT_PASSWORD: Nbv12345!
+
+Start the two defined containers in detached mode:
+
+    docker-compose up -d
+    
+Browse to your new WordPress installation at localhost:8080
+
+## 6. Storage
+
+### 6.1 Sharing a directory between host and a container
+
+How to mount a local directory into a container:
+
+    mkdir ~/temp
+    cd ~/temp
+    echo "Hello" > testfile
+    docker run --rm -it -v ~/temp:/data ubuntu /bin/bash
+
+Check you can see the content of that directory, and update the file inside it:
+
+    cat /data/testfile
+    cd /data/
+    echo “appended from $(hostname)” >> testfile
+    exit
+    
+Check in your local host the file has been modified from inside the container, even though it has now been terminated:
+
+    cat ~/temp/testfile
+    
+### 6.2 Creating a Docker Volume to share between containers
+
+Run a container and create a volume:
+
+    docker run -d --name myapp -v /data ubuntu
+    
+Connect to it and update a file:
+
+    docker exec -it myapp /bin/bash
+        cd /data
+        echo "appended from $(hostname)" >> volfile
+        exit
+
+Create another container, map the volume from the first container, and check the hostname appended is the one from the first container:
+
+    docker run --rm -it --volumes-from myapp ubuntu /bin/bash
+        cat /data/volfile
+        hostname
+        
+Check the names of existing docker volumes:
+
+    docker volume ls
+    
+They are randomly named, so better to specify a volume name when creating them:
+
+    docker run --rm -it -v myvol:/data ubuntu /bin/bash
+    docker volume ls
