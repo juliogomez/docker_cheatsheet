@@ -530,7 +530,7 @@ Disconnect the shell from 'myvm1' environment:
 
     eval $(docker-machine env -u)
     
-If you restart your local host you will need to restart your stopped VMs:
+Please note if you restart your local host you will need to restart your stopped VMs:
 
     docker-machine ls
     docker-machine start myvm1
