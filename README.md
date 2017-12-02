@@ -250,7 +250,7 @@ Run one container and store its IP address in a host variable:
 Run an additional container and pass it the IP address of the first container to ping it:
 
     docker run --rm -it -e TESTING_IP=$TESTING_IP your_docker_id>/containerip /bin/bash
-    ping $TESTING_IP -c 2
+        ping $TESTING_IP -c 2
     
 ### 4.2 Linking containers with links
 
@@ -260,7 +260,7 @@ Run one container:
     
 Run an additional container and create a link/alias to the first one to ping it:
 
-    docker run --rm -it --link myapp1:container1 <your_docker_id>/containerip /bin/bash
+    docker run --rm -it --link myapp:container1 <your_docker_id>/containerip /bin/bash
         ping container1 -c 2
     
 This link option updates /etc/hosts in the new container with an entry for the linked container IP. But if that container restarts then this /etc/hosts is not updated and will keep pointing to the old IP
