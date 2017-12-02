@@ -16,7 +16,7 @@
   * [6. Storage](#6-storage)
     + [6.1 Sharing a directory between host and a container](#61-sharing-a-directory-between-host-and-a-container)
     + [6.2 Creating a Docker Volume to share between containers](#62-creating-a-docker-volume-to-share-between-containers)
-    * [7. Docker Swarm](#7-docker-swarm)
+  * [7. Docker Swarm](#7-docker-swarm)
   
 ## 1. The Basics
 
