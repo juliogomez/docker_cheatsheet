@@ -1,5 +1,22 @@
 # Cheatsheet for Docker demos
 
+  * [1. The Basics](#1-the-basics)
+  * [2. Build your own container](#2-build-your-own-container)
+    + [2.1 Manually](#21-manually)
+    + [2.2 With Dockerfile](#22-with-dockerfile)
+  * [3. Dockerhub and other registries](#3-dockerhub-and-other-registries)
+  * [4. Basic Networking](#4-basic-networking)
+    + [4.1 Linking containers with /etc/hosts (legacy)](#41-linking-containers-with--etc-hosts--legacy-)
+    + [4.2 Linking containers with links](#42-linking-containers-with-links)
+    + [4.3 Linking containers with user networks](#43-linking-containers-with-user-networks)
+  * [5. Docker Compose](#5-docker-compose)
+    + [5.1 Example 1 - Connectivity](#51-example-1---connectivity)
+    + [5.2 Example 2 - Load balance](#52-example-2---load-balance)
+    + [5.3 Example 3 - WordPress](#53-example-3---wordpress)
+  * [6. Storage](#6-storage)
+    + [6.1 Sharing a directory between host and a container](#61-sharing-a-directory-between-host-and-a-container)
+    + [6.2 Creating a Docker Volume to share between containers](#62-creating-a-docker-volume-to-share-between-containers)
+
 ## 1. The Basics
 
 After installing docker you should add your user to the docker group, so that you don’t have to sudo every command:
