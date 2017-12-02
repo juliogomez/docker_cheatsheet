@@ -16,7 +16,8 @@
   * [6. Storage](#6-storage)
     + [6.1 Sharing a directory between host and a container](#61-sharing-a-directory-between-host-and-a-container)
     + [6.2 Creating a Docker Volume to share between containers](#62-creating-a-docker-volume-to-share-between-containers)
-
+  * [7. Using Docker Swarm](#7-using-docker-swarm)
+  
 ## 1. The Basics
 
 After installing docker you should add your user to the docker group, so that you don’t have to sudo every command:
@@ -353,6 +354,14 @@ Obtain 'myapp' containers IP addresses by requesting 'haproxy' for it several ti
 
     curl localhost:80/cgi-bin/ip
 
+Stop all containers:
+
+    docker-compose kill
+    
+Remove all containers:
+
+    docker-compose rm -f
+
 ### 5.3 Example 3 - WordPress
 
 WordPress deployment with two containers defined in this docker-compose.yml file:
@@ -375,6 +384,14 @@ Start the two defined containers in detached mode:
     
 Browse to your new WordPress installation at localhost:8080
 
+Stop both containers:
+
+    docker-compose kill
+    
+Remove both containers:
+
+    docker-compose rm -f
+    
 ## 6. Storage
 
 ### 6.1 Sharing a directory between host and a container
@@ -424,3 +441,97 @@ They are randomly named, so better to specify a volume name when creating them:
 
     docker run --rm -it -v myvol:/data ubuntu /bin/bash
     docker volume ls
+
+## 7. Using Docker Swarm
+
+Swarm is Docker's orchestrator for containers, and it is composed by two types of nodes: managers and workers. For this example let's create 2 VMs with VirtualBox in your local environment:
+
+    docker-machine create --driver virtualbox myvm1
+    docker-machine create --driver virtualbox myvm2
+    
+List the machines and get their IPs:
+
+    docker-machine ls
+    
+Configure the first VM as a manager node:
+
+    docker-machine ssh myvm1 "docker swarm init --advertise-addr <myvm1 ip>"
+    
+And use the resulting command in the second VM, so that it becomes a worker node:
+
+    docker-machine ssh myvm2 "docker swarm join --token <token> <ip>:2377"
+    
+Check the nodes in your swarm, by querying the manager node:
+
+    docker-machine ssh myvm1 "docker node ls"
+    
+Configure your shell to run commands against the manager node:
+
+    docker-machine env myvm1
+    eval $(docker-machine env myvm1)    
+
+Check that the active machine is now 'myvm1' by the asterisk next to it:
+
+    docker-machine ls
+    
+Create a docker-compose.yml file, specifying you want to deploy 3 copies of your container, HW requirements, ports mapping and network to use (by default load-balanced to all containers in your 'web' service):
+
+    version: "3"
+    services:
+      web:
+        image: <your_docker_id>/containerip
+        deploy:
+          replicas: 3
+          resources:
+            limits:
+              cpus: "0.1"
+              memory: 50M
+          restart_policy:
+            condition: on-failure
+        ports:
+          - "80:8000"
+        networks:
+          - webnet
+    networks:
+      webnet:
+
+Deploy the app in your swarm:
+
+    docker stack deploy -c docker-compose.yml getstartedlab
+    
+Check your new service ID, number of replicas, image name and exposed ports:
+
+    docker service ls
+    
+List the containers (aka 'tasks') for your service and how they are distributed across the VMs:
+
+    docker service ps getstartedlab_web
+
+Access the service via the IP of any VM several times, so that you check how IP changes when different containers serve different requests:
+
+    curl <VMx_IP>/cgi-bin/ip
+    
+The network you created is shared and load-balanced by default, all swarm nodes participate in an ingress routing mesh, and reserve the same service port in all nodes.
+
+Change the number of replicas in the docker-compose.yml file and re-deploy:
+
+    docker stack deploy -c docker-compose.yml getstartedlab
+    
+Take the app down:
+
+    docker stack rm getstartedlab_web
+    
+Remove the swarm:
+
+    docker-machine ssh myvm2 "docker swarm leave"
+    docker-machine ssh myvm1 "docker swarm leave --force"
+    
+Disconnect the shell from 'myvm1' environment:
+
+    eval $(docker-machine env -u)
+    
+If you restart your local host you will need to restart your stopped VMs:
+
+    docker-machine ls
+    docker-machine start myvm1
+    docker-machine start myvm2
