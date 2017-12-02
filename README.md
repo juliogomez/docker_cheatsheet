@@ -16,7 +16,7 @@
   * [6. Storage](#6-storage)
     + [6.1 Sharing a directory between host and a container](#61-sharing-a-directory-between-host-and-a-container)
     + [6.2 Creating a Docker Volume to share between containers](#62-creating-a-docker-volume-to-share-between-containers)
-  * [7. Using Docker Swarm](#7-using-docker-swarm)
+    * [7. Docker Swarm](#7-docker-swarm)
   
 ## 1. The Basics
 
@@ -442,7 +442,7 @@ They are randomly named, so better to specify a volume name when creating them:
     docker run --rm -it -v myvol:/data ubuntu /bin/bash
     docker volume ls
 
-## 7. Using Docker Swarm
+## 7. Docker Swarm
 
 Swarm is Docker's orchestrator for containers, and it is composed by two types of nodes: managers and workers. For this example let's create 2 VMs with VirtualBox in your local environment:
 
