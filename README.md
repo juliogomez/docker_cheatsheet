@@ -14,11 +14,11 @@
     + [5.2 Example 2 - Load balance](#52-example-2---load-balance)
     + [5.3 Example 3 - WordPress](#53-example-3---wordpress)
   * [6. Storage](#6-storage)
-    + [6.1 Sharing a directory between host and a container](#61-sharing-a-directory-between-host-and-a-container)
-    + [6.2 Creating a Docker Volume to share between containers](#62-creating-a-docker-volume-to-share-between-containers)
+    + [6.1 Sharing a directory between host and container](#61-sharing-a-directory-between-host-and-container)
+    + [6.2 Sharing a Docker volume between containers](#62-sharing-a-docker-volume-between-containers)
   * [7. Docker Swarm](#7-docker-swarm)
     + [7.1 Single-service stack](#71-single-service-stack)
-    + [7.2 Multi-service stack](#72-multi-service-stack)  
+    + [7.2 Multi-service stack](#72-multi-service-stack)
 
 ## 1. The Basics
 
@@ -396,7 +396,7 @@ Remove both containers:
     
 ## 6. Storage
 
-### 6.1 Sharing a directory between host and a container
+### 6.1 Sharing a directory between host and container
 
 How to mount a local directory into a container:
 
@@ -416,7 +416,7 @@ Check in your local host the file has been modified from inside the container, e
 
     cat ~/temp/testfile
     
-### 6.2 Creating a Docker Volume to share between containers
+### 6.2 Sharing a Docker volume between containers
 
 Run a container and create a volume:
 
