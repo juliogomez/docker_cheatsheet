@@ -1,4 +1,4 @@
-# Docker - From zero to hero
+# Docker - From zero to Hero
 
   * [1. The Basics](#1-the-basics)
   * [2. Build your own container](#2-build-your-own-container)
