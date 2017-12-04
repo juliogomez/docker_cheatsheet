@@ -17,7 +17,9 @@
     + [6.1 Sharing a directory between host and a container](#61-sharing-a-directory-between-host-and-a-container)
     + [6.2 Creating a Docker Volume to share between containers](#62-creating-a-docker-volume-to-share-between-containers)
   * [7. Docker Swarm](#7-docker-swarm)
-  
+    + [7.1 Single-service stack](#71-single-service-stack)
+    + [7.2 Multi-service stack](#72-multi-service-stack)  
+
 ## 1. The Basics
 
 After installing docker you should add your user to the docker group, so that you don’t have to sudo every command:
@@ -474,7 +476,9 @@ Check that the active machine is now 'myvm1' by the asterisk next to it:
 
     docker-machine ls
     
-Create a docker-compose.yml file, specifying you want to deploy 3 copies of your container, HW requirements, ports mapping and network to use (by default load-balanced to all containers in your 'web' service):
+### 7.1 Single-service stack
+
+Create a docker-compose.yml file for a new service, specifying you want to deploy 3 copies of your container, HW requirements, ports mapping and network to use (by default load-balanced to all containers in your 'web' service):
 
     version: "3"
     services:
@@ -495,7 +499,7 @@ Create a docker-compose.yml file, specifying you want to deploy 3 copies of your
     networks:
       webnet:
 
-Deploy the app in your swarm:
+Deploy the service in your swarm:
 
     docker stack deploy -c docker-compose.yml getstartedlab
     
@@ -513,15 +517,54 @@ Access the service via the IP of any VM several times, so that you check how IP 
     
 The network you created is shared and load-balanced by default, all swarm nodes participate in an ingress routing mesh, and reserve the same service port in all nodes.
 
-Change the number of replicas in the docker-compose.yml file and re-deploy:
+Change the number of replicas in the docker-compose.yml file for your service and re-deploy:
 
     docker stack deploy -c docker-compose.yml getstartedlab
     
-Take the app down:
+Take the stack down:
 
     docker stack rm getstartedlab_web
     
-Remove the swarm:
+### 7.2 Multi-service stack
+
+Let's add a second service to your previous docker-compose.yml file, so that we create a new stack with two services. The file will request to deploy 5 copies of 'containerip' and 1 copy of 'visualizer'. Apart from the previous parameters it will also map Docker's socket to have access to the list of running containers, and a placement constraint to deploy it only in the manager node:
+
+    version: "3"
+    services:
+      [...]
+      visualizer:
+        image: dockersamples/visualizer:stable
+        ports:
+          - "8080:8080"
+        volumes:
+          - "/var/run/docker.sock:/var/run/docker.sock"
+        deploy:
+          placement:
+            constraints: [node.role == manager]
+        networks:
+          - webnet
+    networks:
+      webnet:
+
+Update the stack in your swarm:
+
+    docker stack deploy -c docker-compose.yml getstartedlab
+    
+Verify both services are now running in your stack:
+
+    docker service ls
+    
+Point your browser to the IP of any of your VMs (VMx_IP:8080) and see how your containers have been distributed between both VMs:
+
+You may check the allocation is correct by running:
+
+    docker stack ps getstartedlab
+
+When you are finished you may remove the stack:
+
+     docker stack rm getstartedlab_web
+
+Now you can remove the swarm:
 
     docker-machine ssh myvm2 "docker swarm leave"
     docker-machine ssh myvm1 "docker swarm leave --force"
@@ -535,3 +578,8 @@ Please note if you restart your local host you will need to restart your stopped
     docker-machine ls
     docker-machine start myvm1
     docker-machine start myvm2
+    
+Finally you may remove both VMs:
+
+    docker-machine rm myvm2
+    docker-machine rm myvm1
