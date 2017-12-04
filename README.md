@@ -1,4 +1,4 @@
-# Cheatsheet for Docker demos
+# Docker - From zero to hero
 
   * [1. The Basics](#1-the-basics)
   * [2. Build your own container](#2-build-your-own-container)
