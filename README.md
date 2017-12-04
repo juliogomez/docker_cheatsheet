@@ -22,7 +22,7 @@
 
 ## 1. The Basics
 
-After installing docker you should add your user to the docker group, so that you don’t have to sudo every command:
+After [downloading and installing docker CE](https://www.docker.com/community-edition#/download) you should add your user to the docker group, so that you don’t have to sudo every command:
 
 	sudo usermod -aG docker <user>
 
