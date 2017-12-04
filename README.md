@@ -446,7 +446,7 @@ They are randomly named, so better to specify a volume name when creating them:
 
 ## 7. Docker Swarm
 
-Swarm is Docker's orchestrator for containers, and it is composed by two types of nodes: managers and workers. For this example let's create 2 VMs with VirtualBox in your local environment:
+Swarm is Docker's orchestrator for containers, and it is composed by two types of nodes: managers and workers. For this example let's create 2 VMs with VirtualBox to work as nodes in your local environment:
 
     docker-machine create --driver virtualbox myvm1
     docker-machine create --driver virtualbox myvm2
