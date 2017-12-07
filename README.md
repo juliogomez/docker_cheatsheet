@@ -42,8 +42,8 @@ Run an interactive shell in ubuntu:
     
 Run a script in ubuntu and check its logs:
 
-    docker run -d ubuntu /bin/sh -c "while true; do echo hello world; sleep 1; done"
-   	docker logs -f <docker_NAME>
+    docker run --name script -d ubuntu /bin/sh -c "while true; do echo hello world; sleep 1; done"
+   	docker logs -f script
 
 See complete list of containers (running & exited):
 
