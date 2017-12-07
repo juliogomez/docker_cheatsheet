@@ -181,7 +181,7 @@ Check existing networks:
 
     docker network ls
     
-'bridge' maps to docker0 (shown when you run ifconfig in the host)
+'bridge' is the default one and maps to docker0 (shown when you run ifconfig in the host)
 
 'host' maps container to host (not recommended)
 
@@ -250,9 +250,13 @@ Run one container and store its IP address in a host variable:
     TESTING_IP=$(docker inspect --format "{{ .NetworkSettings.IPAddress }}" myapp)
     echo $TESTING_IP
 
+You may inspect the network and see the IP address assigned to your container:
+
+    docker network inspect bridge 
+
 Run an additional container and pass it the IP address of the first container to ping it:
 
-    docker run --rm -it -e TESTING_IP=$TESTING_IP your_docker_id>/containerip /bin/bash
+    docker run --rm -it -e TESTING_IP=$TESTING_IP <your_docker_id>/containerip /bin/bash
         ping $TESTING_IP -c 2
     
 ### 4.2 Linking containers with links
@@ -280,6 +284,10 @@ Create two containers connected to that network:
     
     docker run -d --net=mynet --name myapp1 <your_docker_id>/containerip
     docker run -d --net=mynet --name myapp2 <your_docker_id>/containerip
+    
+You may inspect the network and see the IP addresses assigned to your containers:
+
+    docker network inspect mynet 
     
 Connect to the first container and try pinging the second one using its name:
     
