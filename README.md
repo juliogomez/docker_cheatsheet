@@ -293,7 +293,16 @@ Connect to the first container and try pinging the second one using its name:
     
     docker exec -it myapp2 /bin/bash
         ping myapp1 -c 2
-        
+
+You can now manually disconnect one of the containers from the network, and inspect the network again:
+
+    docker network disconnect mynet myapp2
+    docker network inspect mynet
+
+Delete your network:
+
+    docker network rm mynet
+    
 ## 5. Docker Compose
 
 This is a tool to orchestrate a number of containers inside a service, by mean of a YML file.
