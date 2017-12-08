@@ -109,7 +109,7 @@ Run Ubuntu container and create an app inside:
 
 Save container layers as R/O, and create a new R/W layer (new image):
 
-    docker commit testapp <your_docker_id>/sinatra
+    docker commit testapp <your_docker_id>/<your_app_name>
     
 Delete the container:
 
@@ -117,16 +117,16 @@ Delete the container:
     
 Run the app inside the container:
 
-    docker run --name testapp <your_docker_id>/sinatra /myapp.sh
+    docker run --name testapp <your_docker_id>/<your_app_name> /myapp.sh
     
-Set executing myapp.sh as default when running <your_docker_id>/sinatra
+Set executing myapp.sh as default when running <your_docker_id>/<your_app_name>
 
-    docker commit --change='CMD [“/myapp.sh”]' testapp <your_docker_id>/sinatra
+    docker commit --change='CMD [“/myapp.sh”]' testapp <your_docker_id>/<your_app_name>
     
 Run a container from the new docker without specifying the app inside the container:
 
     docker rm testapp
-    docker run --rm <your_docker_id>/sinatra
+    docker run --rm <your_docker_id>/<your_app_name>
     
 ### 2.2 With Dockerfile
 
@@ -142,7 +142,7 @@ Assign permissions to execute it:
 Create a Dockerfile in your local environment, with the following content:
 
 	FROM ubuntu
-	RUN apt-get update && apt-get install -y cowsay lolcat && rm -rf /var/lib/apt/lists/*	—   delete caches
+	RUN apt-get update && apt-get install -y cowsay lolcat && rm -rf /var/lib/apt/lists/*
 	COPY myapp.sh /myapp/myapp.sh
 	CMD ["/myapp/myapp.sh"]
 
