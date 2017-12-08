@@ -1,7 +1,7 @@
 # Docker - From zero to Hero
 
   * [1. The Basics](#1-the-basics)
-  * [2. Build your own container](#2-build-your-own-container)
+  * [2. Build your own image](#2-build-your-own-image)
     + [2.1 Manually](#21-manually)
     + [2.2 With Dockerfile](#22-with-dockerfile)
   * [3. Dockerhub and other registries](#3-dockerhub-and-other-registries)
@@ -96,7 +96,7 @@ Pull a specific image from a remote repo:
 
     docker pull <user/repo_name:tag>
     
-## 2. Build your own container
+## 2. Build your own image
 
 ### 2.1 Manually
 
