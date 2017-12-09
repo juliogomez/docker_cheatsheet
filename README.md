@@ -164,7 +164,7 @@ Upload it to the default dockerhub, delete the local copy and run it again from 
     docker rmi <your_docker_id>/myapp
     docker run --rm <your_docker_id>/myapp
     
-You can rename a container by changing its tag:
+You can rename an image by changing its tag:
 
     docker tag <your_docker_id>/myapp <your_docker_id>/cowapp:ver2
     
@@ -315,7 +315,7 @@ Create file docker-compose.yml:
 
     myapp:
 	  image: <your_docker_id>/containerip
-	someclient
+	someclient:
 	  image: <your_docker_id>/containerip
 	  container_name: someclient
 	  command: sleep 500
