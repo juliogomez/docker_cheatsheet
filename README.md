@@ -437,7 +437,7 @@ Check in your local host the file has been modified from inside the container, e
 
 Run a container and create a volume:
 
-    docker run -d --name myapp -v /data ubuntu
+    docker run -itd --name myapp -v /data ubuntu
     
 Connect to it and update a file:
 
@@ -459,6 +459,7 @@ Check the names of existing docker volumes:
 They are randomly named, so better to specify a volume name when creating them:
 
     docker run --rm -it -v myvol:/data ubuntu /bin/bash
+        exit
     docker volume ls
 
 ## 7. Docker Swarm
