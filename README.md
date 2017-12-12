@@ -57,7 +57,7 @@ Run a Nginx web server in TCP port 80, open a shell, install vim and edit the de
         cd /usr/share/nginx/html
         vim index.html
     
-Run Firefox in a container, by opening a display server, finding out your IP address, and allowing connections from your local machine IP:
+(Only for Mac users) Run Firefox in a container, by opening a display server, finding out your IP address, and allowing connections from your local machine IP:
 
     open -a XQuartz
     ip=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
