@@ -38,7 +38,10 @@ Run ubuntu in a container and echo a message:
 Run an interactive shell in ubuntu:
 
     docker run -t -i ubuntu /bin/bash
-    uname -a
+        ls
+        cat /etc/issue
+        ps aux
+        exit
     
 Run a script in ubuntu and check its logs:
 
@@ -49,13 +52,17 @@ See complete list of containers (running & exited):
 
 	docker ps -a
 	
-Run a Nginx web server in TCP port 80, open a shell, install vim and edit the default homepage to see it updates in real-time:
+Run a Nginx web server (in detached mode so that it runs in the background) in TCP port 80, open a shell, install vim and edit the default homepage to see it updates in real-time:
 	
     docker run -d -p 80:80 --name webserver nginx
     docker exec -it webserver /bin/bash
         apt-get update && apt-get install vim
         cd /usr/share/nginx/html
         vim index.html
+
+You may see the top processes running inside your container with:
+
+    docker top webserver
     
 (Only for Mac users) Run Firefox in a container, by opening a display server, finding out your IP address, and allowing connections from your local machine IP:
 
