@@ -672,7 +672,7 @@ Let's clean up by removing the service from your manager node, with `docker serv
 
 
 
-Finally you can remove the swarm:
+Finally you can remove the swarm from your system:
 
     docker-machine ssh myvm2 "docker swarm leave"
     docker-machine ssh myvm1 "docker swarm leave --force"
