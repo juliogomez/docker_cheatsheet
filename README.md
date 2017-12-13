@@ -184,17 +184,42 @@ In order to upload your container to a different registry you need to build the 
 
 There is an eth0 for the container and a peer veth in the host, with a virtual bridge from host to container. iptables make sure that traffic only flows between containers in the same bridge  (default docker0).
 
-Check existing networks:
+Check existing local container networks and their associated driver:
 
     docker network ls
     
-'bridge' is the default one and maps to docker0 (shown when you run ifconfig in the host)
+'bridge' is the default one where all new containers will be connected to, if not specified otherwise, and maps to docker0 (shown when you run ifconfig in the host)
 
 'host' maps container to host (not recommended)
 
 'none' provides no connectivity
 
-Let's create a container that responds to HTTP requests with its own IP address:
+Every network created with the 'bridge' driver is based on a virtual bridge in Linux. You may use the 'brctl' to list virtual bridges in your host:
+
+    brctl show
+    
+You may also see details about docker0 virtual bridge with:
+
+    ip a
+
+Initially 'brctl' shows that there are no interfaces connected to 'docker0', but let's run the following container and check how it is automatically connected by default:
+
+    docker run -dt --name test ubuntu sleep infinity
+    brctl show 
+    docker network inspect bridge
+    
+You may check connectivity by pinging from your host to the IP address of the container (shown in the last command).    
+
+You may also check connectivity to the outside world from your container (but first you need to install the 'ping' utility):
+
+    docker exec -it test /bin/bash
+        apt-get update && apt-get install -y iputils-ping
+        ping -c5 www.github.com
+        exit
+        
+        
+    
+Before we start digging into the networking demo, let's first create a container that responds to HTTP requests with its own IP address:
 
 1.- In your local environment create the following directory structure:
 
@@ -589,7 +614,65 @@ When you are finished you may remove the stack:
 
      docker stack rm getstartedlab_web
 
-Now you can remove the swarm:
+### 7.3 Overlay networking
+
+As you may remember we have already discussed single-host networking in past chapters. Now is the time to investigate multi-host networking with overlay *networks*.
+
+From *manager* let's create a new overlay network called *overnet* by specifying the driver (`-d`) to use as *overlay*:
+
+```
+docker network create -d overlay overnet
+docker network ls
+```
+
+
+If you run `docker network ls` from your worker node you will not see *overnet*. The reason is there are no service containers running in this new network yet.
+
+Let's now create a new service from the manager node:
+
+```
+docker service create --name myservice --network overnet --replicas 2 ubuntu sleep infinity
+```
+
+Check until the service and both replicas are up with `docker service ls`.
+
+Now verify that there is one replica running in each of your Swarm nodes:
+
+```
+docker service ps myservice
+```
+
+
+If you check the networks again in your worker node with `docker network ls`, *overnet* will be there. The reason is that now one of the container using *overnet* resides in your worker node.
+
+
+Please use `docker network inspect overnet` in your worker node, and write down the IP address of the container running in that worker node.
+
+
+Now go to your manager node and list your running containers with `docker ps`, copy its ID and connect to it. Then install *ping* utility, and ping the IP address of the container running in the worker node (the one you noted in the previous step).
+
+```
+docker attach -it <container ID> /bin/bash
+  apt-get update && apt-get install -y iputils-ping
+  ping -c5 <worker2_container IP>
+```
+
+Congrats!! You have just verified the connectivity between containers in different hosts, via an overlay network.
+
+Let's now learn about Service Discovery.
+
+From inside the container where we were in last step, please run `cat /etc/resolv.conf` and look for the *nameserver* entry. That IP address belongs to a DNS resolver embedded in all Docker containers (ie. 127.0.0.11:53).
+
+You may go ahead and ping 'myservice' from inside the container, with `ping -c2 myservice`. Please note down the IP address answering your ping requests.
+
+Now go to your manager node, and from that host run `docker service inspect myservice`. Towards the bottom of the output you will find the IP address of that service Virtual IP. You will see it is the same as the IP answering your ping requests in the previous step.
+
+Let's clean up by removing the service from your manager node, with `docker service rm myservice`.
+
+
+
+
+Finally you can remove the swarm:
 
     docker-machine ssh myvm2 "docker swarm leave"
     docker-machine ssh myvm1 "docker swarm leave --force"
