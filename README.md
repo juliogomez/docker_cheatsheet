@@ -6,7 +6,7 @@
     + [2.2 With Dockerfile](#22-with-dockerfile)
   * [3. Dockerhub and other registries](#3-dockerhub-and-other-registries)
   * [4. Basic Networking](#4-basic-networking)
-    + [4.1 Linking containers with /etc/hosts (legacy)](#41-linking-containers-with--etc-hosts--legacy-)
+    + [4.1 Linking containers with variables](#41-linking-containers-with-variables)
     + [4.2 Linking containers with links](#42-linking-containers-with-links)
     + [4.3 Linking containers with user networks](#43-linking-containers-with-user-networks)
   * [5. Docker Compose](#5-docker-compose)
@@ -19,6 +19,7 @@
   * [7. Docker Swarm](#7-docker-swarm)
     + [7.1 Single-service stack](#71-single-service-stack)
     + [7.2 Multi-service stack](#72-multi-service-stack)
+    + [7.3 Overlay networking](#73-overlay-networking)
 
 ## 1. The Basics
 
@@ -113,6 +114,10 @@ Run Ubuntu container and create an app inside:
         echo -e "#! /bin/bash\necho It works!" > myapp.sh
         chmod +x myapp.sh
         exit
+
+Check the differences between your container and the base image:
+
+    docker diff testapp
 
 Save container layers as R/O, and create a new R/W layer (new image):
 
@@ -272,9 +277,9 @@ Before we start digging into the networking demo, let's first create a container
     PORT=$(docker port myapp | cut -d ":" -f 2)
     curl "localhost:$PORT/cgi-bin/ip"
 
-### 4.1 Linking containers with /etc/hosts (legacy)
+### 4.1 Linking containers with variables
 
-This way of linking containers is static and restarting containers will need linked containers to restart as well, so that port numbers are updated in /etc/hosts
+This way of linking containers is static and restarting containers will need variables to be updated:
 
 Run one container and store its IP address in a host variable:
 
@@ -302,7 +307,9 @@ Run an additional container and create a link/alias to the first one to ping it:
     docker run --rm -it --link myapp:container1 <your_docker_id>/containerip /bin/bash
         ping container1 -c 2
     
-This link option updates /etc/hosts in the new container with an entry for the linked container IP. But if that container restarts then this /etc/hosts is not updated and will keep pointing to the old IP
+This link option updates /etc/hosts in the new container with an entry for the linked container IP. But if that container restarts then this /etc/hosts is not updated and will keep pointing to the old IP.
+
+    cat /etc/hosts
 
 ### 4.3 Linking containers with user networks
 
