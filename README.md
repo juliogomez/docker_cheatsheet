@@ -133,7 +133,7 @@ Run the app inside the container:
     
 Set executing myapp.sh as default when running <your_docker_id>/<your_app_name>
 
-    docker commit --change='CMD [“/myapp.sh”]' testapp <your_docker_id>/<your_app_name>
+    docker commit --change='CMD ["/myapp.sh"]' testapp <your_docker_id>/<your_app_name>
     
 Run a container from the new docker without specifying the app inside the container:
 
