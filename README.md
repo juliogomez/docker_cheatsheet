@@ -187,46 +187,43 @@ In order to upload your container to a different registry you need to build the 
     
 ## 4. Basic Networking
 
-There is an eth0 for the container and a peer veth in the host, with a virtual bridge from host to container. iptables make sure that traffic only flows between containers in the same bridge  (default docker0).
+There is an `eth0` for the container and a peer `veth` in the host, with a virtual bridge from host to container. iptables make sure that traffic only flows between containers in the same bridge (default `docker0`).
 
 Check existing local container networks and their associated driver:
 
     docker network ls
     
-'bridge' is the default one where all new containers will be connected to, if not specified otherwise, and maps to docker0 (shown when you run ifconfig in the host)
+`bridge` is the default one where all new containers will be connected to, if not specified otherwise, and maps to docker0 (shown when you run ifconfig in the host)
 
-'host' maps container to host (not recommended)
+`host` maps container to host (not recommended)
 
-'none' provides no connectivity
+`none` provides no connectivity
 
-Every network created with the 'bridge' driver is based on a virtual bridge in Linux. You may use the 'brctl' to list virtual bridges in your host:
+Every network created with the `bridge` driver is based on a virtual bridge in Linux. You may use the `brctl` to list virtual bridges in your host:
 
     brctl show
     
-You may also see details about docker0 virtual bridge with:
+You may see details about docker0 virtual bridge with:
 
     ip a
 
-Initially 'brctl' shows that there are no interfaces connected to 'docker0', but let's run the following container and check how it is automatically connected by default:
+Initially `brctl` shows that there are no interfaces connected to `docker0`, but let's run the following container and check how it is automatically connected by default:
 
-    docker run -dt --name test ubuntu sleep infinity
+    docker run -dt --name test alpine sleep infinity
     brctl show 
     docker network inspect bridge
     
-You may check connectivity by pinging from your host to the IP address of the container (shown in the last command).    
+You can check connectivity by pinging from your host to the IP address of the container (shown in the last command).    
 
-You may also check connectivity to the outside world from your container (but first you need to install the 'ping' utility):
+You may also check connectivity to the outside world from your container:
 
-    docker exec -it test /bin/bash
-        apt-get update && apt-get install -y iputils-ping
+    docker exec -it test /bin/sh
         ping -c5 www.github.com
         exit
-        
-        
-    
+
 Before we start digging into the networking demo, let's first create a container that responds to HTTP requests with its own IP address:
 
-1.- In your local environment create the following directory structure:
+1.- In your local host environment create the following directory structure:
 
     mkdir ./www/
     mkdir ./www/cgi-bin
