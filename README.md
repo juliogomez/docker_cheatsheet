@@ -364,7 +364,7 @@ Start the two defined containers in detached mode:
     
 Check that the container for 'myapp' has been assigned a pseudo-random name, and 'someclient' is executing a different command.
 
-    dockers ps -a
+    docker ps -a
     
 Connect to 'someclient' and ping 'myapp' by its name, defined in the yml file:
 
