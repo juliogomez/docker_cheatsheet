@@ -34,7 +34,7 @@ Test your installation with:
     
 Run ubuntu in a container and echo a message:
 
-    docker run ubuntu /bin/echo ‘hello world’
+    docker run ubuntu /bin/echo hello world
 
 Run an interactive shell in ubuntu:
 
