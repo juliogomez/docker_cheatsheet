@@ -64,13 +64,6 @@ Run a Nginx web server (in detached mode so that it runs in the background) in T
 You may see the top processes running inside your container with:
 
     docker top webserver
-    
-(Only for Mac users) Run Firefox in a container, by opening a display server, finding out your IP address, and allowing connections from your local machine IP:
-
-    open -a XQuartz
-    ip=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
-    xhost + $ip										—	
-    docker run -d --name firefox -e DISPLAY=$ip:0 -v /tmp/.X11-unix:/tmp/.X11-unix jess/firefox
 
 Stop a container, sending SIGTERM+SIGKILL:
 
