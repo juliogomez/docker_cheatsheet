@@ -48,10 +48,6 @@ Run a script in ubuntu and check its logs:
 
     docker run --name script -d ubuntu /bin/sh -c "while true; do echo hello world; sleep 1; done"
    	docker logs -f script
-
-See complete list of containers (running & exited):
-
-	docker ps -a
 	
 Run a Nginx web server (in detached mode so that it runs in the background) in TCP port 80, open a shell, install vim and edit the default homepage to see it updates in real-time:
 	
@@ -65,6 +61,10 @@ You may see the top processes running inside your container with:
 
     docker top webserver
 
+See complete list of containers in your system (running & exited):
+
+	docker ps -a
+
 Stop a container, sending SIGTERM+SIGKILL:
 
     docker stop <container_id>
@@ -72,24 +72,20 @@ Stop a container, sending SIGTERM+SIGKILL:
 Delete a container, by deleting its R/W container layers:
 
     docker rm <container_id>
-    
-Stop and delete the container:
+
+Delete only stopped/exited containers:
+
+    docker rm $(docker ps -aqf status=exited)
+
+Stop and delete the container at the same time:
 
     docker rm -f <container_id>
     
-Delete a container image, by deleting its R/O container layers:
+Stop and delete all containers in your system:
 
-    docker rmi <container_image_name>
-    
-Delete all containers:
+    docker rm -f $(docker ps -aq)
 
-    docker rm $(docker ps -aq)
-    
-Delete all stopped/exited containers:
-
-    docker rm $(docker ps -aqf status=exited)
-    
-List all local images:
+List local images downloaded locally in your system:
 
     docker images
     
@@ -97,6 +93,10 @@ Pull a specific image from a remote repo:
 
     docker pull <user/repo_name:tag>
     
+Delete a container image, by deleting its R/O container layers:
+
+    docker rmi <container_image_name>
+
 ## 2. Build your own image
 
 ### 2.1 Manually
