@@ -1,0 +1,9 @@
+myapp:
+  image: <your_docker_id>/containerip
+haproxy:
+  image: dockercloud/haproxy
+  container_name: haproxy
+  links:
+    - myapp
+  ports:
+    - 80:80

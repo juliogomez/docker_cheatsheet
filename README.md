@@ -268,9 +268,15 @@ PORT=$(docker port myapp | cut -d ":" -f 2)
 curl "localhost:$PORT/cgi-bin/ip"
 ```
 
+10.- Delete the container to start fresh.
+
+```
+docker rm -f myapp
+```
+
 ### 4.1 Linking containers with variables
 
-This way of linking containers is static and restarting containers will need variables to be updated:
+This way of linking containers is static and restarting containers will need variables to be updated.
 
 Run one container and store its IP address in a host variable:
 
@@ -286,7 +292,11 @@ Run an additional container and pass it the IP address of the first container to
 
     docker run --rm -it -e TESTING_IP=$TESTING_IP <your_docker_id>/containerip /bin/bash
         ping $TESTING_IP -c 2
-    
+
+Delete the container:
+
+    docker rm -f myapp
+
 ### 4.2 Linking containers with links
 
 Run one container:
@@ -298,13 +308,13 @@ Run an additional container and create a link/alias to the first one to ping it:
     docker run --rm -it --link myapp:container1 <your_docker_id>/containerip /bin/bash
         ping container1 -c 2
     
-This link option updates /etc/hosts in the new container with an entry for the linked container IP. But if that container restarts then this /etc/hosts is not updated and will keep pointing to the old IP.
+This link option updates `/etc/hosts` in the new container with an entry for the linked container IP. But if that container restarts then this `/etc/hosts` is not updated and will keep pointing to the old IP.
 
     cat /etc/hosts
 
 ### 4.3 Linking containers with user networks
 
-User-defined bridges that automatically discover containers and provide DNS (not /etc/hosts at all)
+User-defined bridges that automatically discover containers and provide DNS (no `/etc/hosts` used at all)
 
 Create a new docker network:
 
@@ -323,49 +333,50 @@ Connect to the first container and try pinging the second one using its name:
     
     docker exec -it myapp2 /bin/bash
         ping myapp1 -c 2
+        exit
 
 You can now manually disconnect one of the containers from the network, and inspect the network again:
 
     docker network disconnect mynet myapp2
     docker network inspect mynet
 
-Delete your network:
+Delete your containers and network:
 
+    docker rm -f myapp1
+    docker rm -f myapp2
     docker network rm mynet
-    
+
 ## 5. Docker Compose
 
-This is a tool to orchestrate a number of containers inside a service, by mean of a YML file.
+This is a tool to orchestrate a number of containers inside a service, by mean of a [YAML](https://en.wikipedia.org/wiki/YAML) file.
 
 ### 5.1 Example 1 - Connectivity
 
 Let's run two containers and verify connectivity between them using names.
 
-Create file docker-compose.yml:
+Please go to the following directory:
 
-    myapp:
-	  image: <your_docker_id>/containerip
-	someclient:
-	  image: <your_docker_id>/containerip
-	  container_name: someclient
-	  command: sleep 500
-	  links:
-	  - myapp
+    cd ./resources/5-Compose/1-Connectivity
 
-Start the two defined containers in detached mode:
+And check the `docker-compose.yml` file included there:
+
+    cat docker-compose.yml
+
+Insert your Dockerhub username and start the two defined containers in detached mode:
 
     docker-compose up -d
     
-Check that the container for 'myapp' has been assigned a pseudo-random name, and 'someclient' is executing a different command.
+Check that the container for `myapp` has been assigned a pseudo-random name, and `someclient` is executing a different command.
 
     docker ps -a
     
-Connect to 'someclient' and ping 'myapp' by its name, defined in the yml file:
+Connect to `someclient` and ping `myapp` by its name, defined in the YAML file:
 
     docker exec -it someclient /bin/bash
         ping myapp -c 2
+        exit
         
-There is connectivity between the two containers because of the 'links' definition.
+There is connectivity between the two containers because of the `links` definition.
 
 Stop both containers:
 
@@ -377,31 +388,29 @@ Remove both containers:
     
 ### 5.2 Example 2 - Load balance
 
-'haproxy' is a load-balancer serving in port 80 and redirecting traffic to containers in 'myapp'
+`haproxy` is a load-balancer serving in port 80 and redirecting traffic to containers in `myapp`
 
-Create file docker-compose.yml:
+Please go to the following directory:
 
-    myapp:
-      image: <your_docker_id>/containerip
-    haproxy:
-      image: dockercloud/haproxy
-      container_name: haproxy
-      links:
-        - myapp
-      ports:
-        - 80:80
+    cd ./resources/5-Compose/2-Load_Balance
 
-Start two containers for 'myapp' and one for 'haproxy', all in detached mode:
+Check the content of your `docker-compose.yml` file:
+
+    cat docker-compose.yml
+
+Start two containers for `myapp` and one for `haproxy`, all in _detached_ mode:
 
     docker-compose up --scale myapp=2 -d
     
-Check port mapping for 'haproxy' (host 80 to haproxy 80) and 'containerip' using a totally different port (8000)
+Check port mapping for `haproxy` (host 80 to haproxy 80) and `containerip` using a totally different port (8000)
 
     docker-compose ps
     
-Obtain 'myapp' containers IP addresses by requesting 'haproxy' for it several times:
+Obtain `myapp` containers IP addresses by requesting `haproxy` for it several times:
 
     curl localhost:80/cgi-bin/ip
+
+You will see the IP changes as `haproxy` load-balances requests to the available `myapp` containers.
 
 Stop all containers:
 
@@ -413,25 +422,21 @@ Remove all containers:
 
 ### 5.3 Example 3 - WordPress
 
-WordPress deployment with two containers defined in this docker-compose.yml file:
+Please go to the following directory:
 
-    wordpress:
-      image: wordpress
-      links:
-        - db:mysql
-      ports:
-        - 8080:80
-    
-    db:
-      image: mariadb
-      environment:
-        MYSQL_ROOT_PASSWORD: Nbv12345!
+    cd ./resources/5-Compose/3-WordPress
 
-Start the two defined containers in detached mode:
+Check the content of your `docker-compose.yml` file:
+
+    cat docker-compose.yml
+
+As you can see the WordPress deployment requires two different containers.
+
+Start those containers in detached mode:
 
     docker-compose up -d
     
-Browse to your new WordPress installation at localhost:8080
+Browse to your new WordPress installation at `localhost:8080`
 
 Stop both containers:
 
