@@ -1,0 +1,3 @@
+#! /bin/sh
+echo
+echo "Container IP: $(ifconfig eth0 | awk '/inet addr/{print substr($2,6)}')"

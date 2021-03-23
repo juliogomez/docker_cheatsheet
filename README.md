@@ -49,7 +49,7 @@ Run a script in ubuntu and check its logs:
     docker run --name script -d ubuntu /bin/sh -c "while true; do echo hello world; sleep 1; done"
    	docker logs -f script
 	
-Run a Nginx web server (in detached mode so that it runs in the background) in TCP port 80, open a shell, install vim and edit the default homepage to see it updates in real-time:
+Run a NGINX web server (in detached mode so that it runs in the background) in TCP port 80, open a shell, install vim and edit the default homepage to see it updates in real-time:
 	
     docker run -d -p 80:80 --name webserver nginx
     docker exec -it webserver /bin/bash
@@ -97,6 +97,11 @@ Delete a container image, by deleting its R/O container layers:
 
     docker rmi <container_image_name>
 
+__Important__: before continuing please clone this repository into your local system and go into the new directory.
+
+    git clone https://github.com/juliogomez/docker_cheatsheet.git
+    cd docker_cheatsheet
+
 ## 2. Build your own image
 
 ### 2.1 Manually
@@ -124,7 +129,7 @@ Run the app inside the container:
 
     docker run --name testapp <your_docker_id>/<your_app_name> /myapp.sh
 
-Set executing 'myapp.sh' as default when running <your_docker_id>/<your_app_name>
+Set executing `myapp.sh` as default when running <your_docker_id>/<your_app_name>
 
     docker commit --change='CMD ["/myapp.sh"]' testapp <your_docker_id>/<your_app_name>
 
@@ -135,21 +140,17 @@ Run a container from the new image without specifying the code to run inside the
 
 ### 2.2 With Dockerfile
 
-Create 'myapp.sh' in your local environment, with the following content:
+Go to the following directory:
 
-	#! /bin/bash
-	echo "I am a cow!" | /usr/games/cowsay | /usr/games/lolcat -f 
+    cd ./resources/2-Dockerfile
 
-Assign permissions to execute it:
+Check the content of `myapp.sh`
 
-    chmod +x myapp.sh
+    cat myapp.sh
 
-Create a Dockerfile in your local environment, with the following content:
+Check the content of your existing `Dockerfile`
 
-	FROM ubuntu
-	RUN apt-get update && apt-get install -y cowsay lolcat && rm -rf /var/lib/apt/lists/*
-	COPY myapp.sh /myapp/myapp.sh
-	CMD ["/myapp/myapp.sh"]
+    cat Dockerfile
 
 Build and run your app:
 
@@ -207,56 +208,65 @@ You may also check connectivity to the outside world from your container:
 
 Before we start digging into the networking demo, let's first create a container that responds to HTTP requests with its own IP address:
 
-1.- In your local host environment create the following directory structure:
+1.- In your cloned directory go to the following directory.
 
-    mkdir ./www/
-    mkdir ./www/cgi-bin
+```
+cd ./resources/4-Networking_Container
+```
 
-2.- Create the script to find out container's IP address
+2.- Check the script to find out your container's IP address.
 
-    vi ./www/cgi-bin/ip
-        #! /bin/sh
-        echo
-        echo "Container IP: $(ifconfig eth0 | awk '/inet addr/{print substr($2,6)}')"
+```
+cat ./www/cgi-bin/ip
+```
 
-3.- Create a Dockerfile with the following content:
+3.- Check the existing Dockerfile.
 
-    FROM alpine:3.3
-	ADD www /www
-	RUN apk add --no-cache bash curl && chmod -R 700 /www/cgi-bin
-	EXPOSE 8000
-	CMD ["/bin/busybox", "httpd", "-f", "-h", "/www", "-p", "8000"] 
+```
+cat Dockerfile
+```
 
-4.- Build the image:
+4.- Build the image.
 
-    docker build -t <your_docker_id>/containerip .
+```
+docker build -t <your_docker_id>/containerip .
+```
 
-5.- Run the container that offers its service in TCP port 8000 (but not available from the host!):
+5.- Run the container that offers its service in TCP port 8000 (but not available from the host!).
 
-    docker run -d --name myapp <your_docker_id>/containerip
+```
+docker run -d --name myapp <your_docker_id>/containerip
+```
 
-6.- Connect to the container, check interface eth0 (the one connected to docker0 virtual bridge), and the IP returned by the HTTP server:
+6.- Connect to the container, check interface eth0 (the one connected to docker0 virtual bridge), and the IP returned by the HTTP server.
 
-    docker exec -it myapp /bin/bash
-        ifconfig
-        curl localhost:8000/cgi-bin/ip
-        exit
-    docker rm -f myapp
-
-7.- Let's make it now available from the host by mapping ports, and test that it shows the internal IP address of the container:
-
-    docker run -d -p 8000:8000 --name myapp <your_docker_id>/containerip
+```
+docker exec -it myapp /bin/bash
+    ifconfig
     curl localhost:8000/cgi-bin/ip
+    exit
+docker rm -f myapp
+```
 
-8.- Check the exposed port for the image and container:
+7.- Let's make it now available from the host by mapping ports, and test that it shows the internal IP address of the container.
 
-    docker inspect --format "{{ .ContainerConfig.ExposedPorts }}" <your_docker_id>/containerip
-    docker port myapp
+```
+docker run -d -p 8000:8000 --name myapp <your_docker_id>/containerip
+curl localhost:8000/cgi-bin/ip
+```
 
-9.- Assign the port in the host to a variable in your local environment, and run the request again:
+8.- Check the exposed port for the container.
 
-    PORT=$(docker port myapp | cut -d ":" -f 2)
-    curl "localhost:$PORT/cgi-bin/ip"
+```
+docker port myapp
+```
+
+9.- Assign the port in the host to a variable in your local environment, and run the request again.
+
+```
+PORT=$(docker port myapp | cut -d ":" -f 2)
+curl "localhost:$PORT/cgi-bin/ip"
+```
 
 ### 4.1 Linking containers with variables
 
