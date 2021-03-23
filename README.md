@@ -88,11 +88,11 @@ Stop and delete all containers in your system:
 List local images downloaded locally in your system:
 
     docker images
-    
+
 Pull a specific image from a remote repo:
 
     docker pull <user/repo_name:tag>
-    
+
 Delete a container image, by deleting its R/O container layers:
 
     docker rmi <container_image_name>
@@ -115,35 +115,35 @@ Check the differences between your container and the base image:
 Save container layers as R/O, and create a new R/W layer (new image):
 
     docker commit testapp <your_docker_id>/<your_app_name>
-    
+
 Delete the container:
 
     docker rm testapp
-    
+
 Run the app inside the container:
 
     docker run --name testapp <your_docker_id>/<your_app_name> /myapp.sh
-    
-Set executing myapp.sh as default when running <your_docker_id>/<your_app_name>
+
+Set executing 'myapp.sh' as default when running <your_docker_id>/<your_app_name>
 
     docker commit --change='CMD ["/myapp.sh"]' testapp <your_docker_id>/<your_app_name>
-    
-Run a container from the new docker without specifying the app inside the container:
+
+Run a container from the new image without specifying the code to run inside the container:
 
     docker rm testapp
     docker run --rm <your_docker_id>/<your_app_name>
-    
+
 ### 2.2 With Dockerfile
 
 Create 'myapp.sh' in your local environment, with the following content:
 
 	#! /bin/bash
 	echo "I am a cow!" | /usr/games/cowsay | /usr/games/lolcat -f 
-			
+
 Assign permissions to execute it:
 
     chmod +x myapp.sh
-    
+
 Create a Dockerfile in your local environment, with the following content:
 
 	FROM ubuntu
@@ -155,29 +155,29 @@ Build and run your app:
 
     docker build -t <your_docker_id>/myapp .
     docker run --rm <your_docker_id>/myapp
-    
+
 See layers created for each command in Dockerfile:
-    
+
     docker history <your_docker_id>/myapp | head -n 4
-    
+
 ## 3. Dockerhub and other registries
-    
-Upload it to the default dockerhub, delete the local copy and run it again from there:
+
+Upload it to the default image registry (Docker Hub), delete the local copy and run it again from there:
 
     docker login
     docker push <your_docker_id>/myapp
     docker rmi <your_docker_id>/myapp
     docker run --rm <your_docker_id>/myapp
-    
+
 You can rename an image by changing its tag:
 
     docker tag <your_docker_id>/myapp <your_docker_id>/cowapp:ver2
-    
+
 In order to upload your container to a different registry you need to build the image with the full registry name:
 
     docker build -t <full_domain_name>/<your_id>/myapp .
     docker push <full_domain_name>/<your_id>/myapp
-    
+
 ## 4. Basic Networking
 
 There is an `eth0` for the container and a peer `veth` in the host, with a virtual bridge from host to container. iptables make sure that traffic only flows between containers in the same bridge (default `docker0`).
@@ -185,7 +185,7 @@ There is an `eth0` for the container and a peer `veth` in the host, with a virtu
 Check existing local container networks and their associated driver:
 
     docker network ls
-    
+
 `bridge` is the default one where all new containers will be connected to, if not specified otherwise, and maps to docker0 (shown when you run ifconfig in the host)
 
 `host` maps container to host (not recommended)
@@ -195,7 +195,7 @@ Check existing local container networks and their associated driver:
 Every network created with the `bridge` driver is based on a virtual bridge in Linux. You may use the `brctl` to list virtual bridges in your host:
 
     brctl show
-    
+
 You may see details about docker0 virtual bridge with:
 
     ip a
@@ -205,7 +205,7 @@ Initially `brctl` shows that there are no interfaces connected to `docker0`, but
     docker run -dt --name test alpine sleep infinity
     brctl show 
     docker network inspect bridge
-    
+
 You can check connectivity by pinging from your host to the IP address of the container (shown in the last command).    
 
 You may also check connectivity to the outside world from your container:
@@ -220,14 +220,14 @@ Before we start digging into the networking demo, let's first create a container
 
     mkdir ./www/
     mkdir ./www/cgi-bin
-    
+
 2.- Create the script to find out container's IP address
 
     vi ./www/cgi-bin/ip
         #! /bin/sh
         echo
         echo "Container IP: $(ifconfig eth0 | awk '/inet addr/{print substr($2,6)}')"
-    
+
 3.- Create a Dockerfile with the following content:
 
     FROM alpine:3.3
@@ -239,11 +239,11 @@ Before we start digging into the networking demo, let's first create a container
 4.- Build the image:
 
     docker build -t <your_docker_id>/containerip .
-    
+
 5.- Run the container that offers its service in TCP port 8000 (but not available from the host!):
 
     docker run -d --name myapp <your_docker_id>/containerip
-    
+
 6.- Connect to the container, check interface eth0 (the one connected to docker0 virtual bridge), and the IP returned by the HTTP server:
 
     docker exec -it myapp /bin/bash
@@ -256,12 +256,12 @@ Before we start digging into the networking demo, let's first create a container
 
     docker run -d -p 8000:8000 --name myapp <your_docker_id>/containerip
     curl localhost:8000/cgi-bin/ip
-    
+
 8.- Check the exposed port for the image and container:
 
     docker inspect --format "{{ .ContainerConfig.ExposedPorts }}" <your_docker_id>/containerip
     docker port myapp
-    
+
 9.- Assign the port in the host to a variable in your local environment, and run the request again:
 
     PORT=$(docker port myapp | cut -d ":" -f 2)
