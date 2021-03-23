@@ -436,7 +436,7 @@ Start those containers in detached mode:
 
     docker-compose up -d
     
-Browse to your new WordPress installation at `localhost:8080`
+From your browser please check your new WordPress installation at `localhost:8080`
 
 Stop both containers:
 
@@ -450,21 +450,21 @@ Remove both containers:
 
 ### 6.1 Sharing a directory between host and container
 
-How to mount a local directory into a container:
+Let's start by focusing on how to mount a local directory into a container. First thing we need to do is to create a new directory in our local host, with a sample file in it. Then we run a container and map that host directory to a container directory.
 
     mkdir ~/temp
     cd ~/temp
     echo "Hello" > testfile
     docker run --rm -it -v ~/temp:/data ubuntu /bin/bash
 
-Check you can see the content of that directory, and update the file inside it:
+Check you can see the content of that directory, including the sample file, and update that sample file from inside the container:
 
     cat /data/testfile
     cd /data/
     echo “appended from $(hostname)” >> testfile
     exit
     
-Check in your local host the file has been modified from inside the container, even though it has now been terminated:
+Check in your local host the file has been modified from inside the container, even though the container has now been terminated:
 
     cat ~/temp/testfile
     
@@ -486,11 +486,12 @@ Create another container, map the volume from the first container, and check the
     docker run --rm -it --volumes-from myapp ubuntu /bin/bash
         cat /data/volfile
         hostname
-        
+        exit
+
 Check the names of existing docker volumes:
 
     docker volume ls
-    
+
 They are randomly named, so better to specify a volume name when creating them:
 
     docker run --rm -it -v myvol:/data ubuntu /bin/bash
