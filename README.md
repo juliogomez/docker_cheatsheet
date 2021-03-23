@@ -186,24 +186,15 @@ Check existing local container networks and their associated driver:
 
     docker network ls
 
-`bridge` is the default one where all new containers will be connected to, if not specified otherwise, and maps to docker0 (shown when you run ifconfig in the host)
+`bridge` is the default one where all new containers will be connected to, if not specified otherwise, and maps to docker0
 
 `host` maps container to host (not recommended)
 
 `none` provides no connectivity
 
-Every network created with the `bridge` driver is based on a virtual bridge in Linux. You may use the `brctl` to list virtual bridges in your host:
-
-    brctl show
-
-You may see details about docker0 virtual bridge with:
-
-    ip a
-
-Initially `brctl` shows that there are no interfaces connected to `docker0`, but let's run the following container and check how it is automatically connected by default:
+Initially there are no interfaces connected to `docker0`, but let's run the following container and check how it is automatically connected by default:
 
     docker run -dt --name test alpine sleep infinity
-    brctl show 
     docker network inspect bridge
 
 You can check connectivity by pinging from your host to the IP address of the container (shown in the last command).    
