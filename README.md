@@ -23,7 +23,7 @@
 
 ## 1. The Basics
 
-After [downloading and installing docker CE](https://www.docker.com/community-edition#/download) you should add your user to the docker group, so that you don’t have to sudo every command:
+After [downloading and installing Docker CE](https://www.docker.com/community-edition#/download) you should add your user to the `docker` group, so that you don’t have to `sudo` every command:
 
 	sudo usermod -aG docker <user>
 
@@ -32,11 +32,11 @@ Test your installation with:
     docker run hello-world
     docker version
     
-Run ubuntu in a container and echo a message:
+Run [Ubuntu](https://en.wikipedia.org/wiki/Ubuntu) in a container and `echo` a message:
 
     docker run ubuntu /bin/echo hello world
 
-Run an interactive shell in ubuntu:
+Run an interactive shell in Ubuntu:
 
     docker run -t -i ubuntu /bin/bash
         ls
@@ -44,12 +44,12 @@ Run an interactive shell in ubuntu:
         ps aux
         exit
     
-Run a script in ubuntu and check its logs:
+Run a script in Ubuntu and check its logs:
 
     docker run --name script -d ubuntu /bin/sh -c "while true; do echo hello world; sleep 1; done"
    	docker logs -f script
 	
-Run a NGINX web server (in detached mode so that it runs in the background) in TCP port 80, open a shell, install vim and edit the default homepage to see it updates in real-time:
+Run a NGINX web server (in _detached_ mode so that it runs in the background) in TCP port 80, open a shell, install `vim` and edit the default homepage to see it updates in real-time:
 	
     docker run -d -p 80:80 --name webserver nginx
     docker exec -it webserver /bin/bash
@@ -57,11 +57,11 @@ Run a NGINX web server (in detached mode so that it runs in the background) in T
         cd /usr/share/nginx/html
         vim index.html
 
-You may see the top processes running inside your container with:
+You may see the _top_ processes running inside your container with:
 
     docker top webserver
 
-See complete list of containers in your system (running & exited):
+See the complete list of containers in your system (both running & exited):
 
 	docker ps -a
 
@@ -77,7 +77,7 @@ Delete only stopped/exited containers:
 
     docker rm $(docker ps -aqf status=exited)
 
-Stop and delete the container at the same time:
+Stop and delete a container at the same time:
 
     docker rm -f <container_id>
     
@@ -89,7 +89,7 @@ List local images downloaded locally in your system:
 
     docker images
 
-Pull a specific image from a remote repo:
+Pull a specific image from a remote repository:
 
     docker pull <user/repo_name:tag>
 
@@ -106,14 +106,14 @@ __Important__: before continuing please clone this repository into your local sy
 
 ### 2.1 Manually
 
-Run Ubuntu container and create an app inside:
+Run an Ubuntu container and create an application `myapp.sh` inside that echoes "It works!" (don't forget to make the file executable):
 
     docker run -it --name testapp ubuntu /bin/bash
         echo -e "#! /bin/bash\necho It works!" > myapp.sh
         chmod +x myapp.sh
         exit
 
-Check the differences between your container and the base image:
+Check the differences between your running container and the base image it used:
 
     docker diff testapp
 
@@ -121,11 +121,11 @@ Save container layers as R/O, and create a new R/W layer (new image):
 
     docker commit testapp <your_docker_id>/<your_app_name>
 
-Delete the container:
+Delete the running container:
 
     docker rm testapp
 
-Run the app inside the container:
+Run the application `myapp.sh` inside the container:
 
     docker run --name testapp <your_docker_id>/<your_app_name> /myapp.sh
 
@@ -148,11 +148,11 @@ Check the content of `myapp.sh`
 
     cat myapp.sh
 
-Check the content of your existing `Dockerfile`
+Check the content of `Dockerfile`
 
     cat Dockerfile
 
-Build and run your app:
+Build and run your app (don't forget the _period sign_ at the end of the `build` command):
 
     docker build -t <your_docker_id>/myapp .
     docker run --rm <your_docker_id>/myapp
@@ -170,30 +170,30 @@ Upload it to the default image registry (Docker Hub), delete the local copy and 
     docker rmi <your_docker_id>/myapp
     docker run --rm <your_docker_id>/myapp
 
-You can rename an image by changing its tag:
+You can rename an image by changing its _tag_:
 
     docker tag <your_docker_id>/myapp <your_docker_id>/cowapp:ver2
 
-In order to upload your container to a different registry you need to build the image with the full registry name:
+In order to upload your container to a different registry you would need to build the image with the full registry name:
 
     docker build -t <full_domain_name>/<your_id>/myapp .
     docker push <full_domain_name>/<your_id>/myapp
 
 ## 4. Basic Networking
 
-There is an `eth0` for the container and a peer `veth` in the host, with a virtual bridge from host to container. iptables make sure that traffic only flows between containers in the same bridge (default `docker0`).
+There is an `eth0` for the container and a peer `veth` in the host, with a virtual bridge from host to container. `iptables` make sure that traffic only flows between containers in the same bridge (default is `docker0`).
 
-Check existing local container networks and their associated driver:
+Check existing local container networks and their associated drivers:
 
     docker network ls
 
-`bridge` is the default one where all new containers will be connected to, if not specified otherwise, and maps to docker0
+`bridge` is the default one where all new containers will be connected to, if not specified otherwise, and maps to `docker0`
 
 `host` maps container to host (not recommended)
 
 `none` provides no connectivity
 
-Initially there are no interfaces connected to `docker0`, but let's run the following container and check how it is automatically connected by default:
+Initially there are no interfaces connected to `docker0`, but let's run the following container and check how it is automatically connected to `bridge` by default:
 
     docker run -dt --name test alpine sleep infinity
     docker network inspect bridge
@@ -214,25 +214,25 @@ Before we start digging into the networking demo, let's first create a container
 cd ./resources/4-Networking_Container
 ```
 
-2.- Check the script to find out your container's IP address.
+2.- Check the script code that will show your container's IP address.
 
 ```
 cat ./www/cgi-bin/ip
 ```
 
-3.- Check the existing Dockerfile.
+3.- Check the existing `Dockerfile`.
 
 ```
 cat Dockerfile
 ```
 
-4.- Build the image.
+4.- Build the image (don't forget the _period sign_ at the end of the command).
 
 ```
 docker build -t <your_docker_id>/containerip .
 ```
 
-5.- Run the container that offers its service in TCP port 8000 (but not available from the host!).
+5.- Run the container that offers its service in TCP port 8000 (please notice it won't be available from the host).
 
 ```
 docker run -d --name myapp <your_docker_id>/containerip
@@ -248,14 +248,14 @@ docker exec -it myapp /bin/bash
 docker rm -f myapp
 ```
 
-7.- Let's make it now available from the host by mapping ports, and test that it shows the internal IP address of the container.
+7.- Let's make the service now available from the host by mapping the cointainer port to the host port, and test that it shows the internal IP address of the container.
 
 ```
 docker run -d -p 8000:8000 --name myapp <your_docker_id>/containerip
 curl localhost:8000/cgi-bin/ip
 ```
 
-8.- Check the exposed port for the container.
+8.- Check the host exposed port mapped to the container one.
 
 ```
 docker port myapp
@@ -268,7 +268,7 @@ PORT=$(docker port myapp | cut -d ":" -f 2)
 curl "localhost:$PORT/cgi-bin/ip"
 ```
 
-10.- Delete the container to start fresh.
+10.- When you are done please delete the container to start fresh with the next exercise.
 
 ```
 docker rm -f myapp
@@ -348,11 +348,11 @@ Delete your containers and network:
 
 ## 5. Docker Compose
 
-This is a tool to orchestrate a number of containers inside a service, by mean of a [YAML](https://en.wikipedia.org/wiki/YAML) file.
+Docker Compose is a tool to orchestrate a number of containers inside a service, as defined by a [YAML](https://en.wikipedia.org/wiki/YAML) file.
 
 ### 5.1 Example 1 - Connectivity
 
-Let's run two containers and verify connectivity between them using names.
+Let's run two containers and verify connectivity between them using _names_.
 
 Please go to the following directory:
 
@@ -362,15 +362,15 @@ And check the `docker-compose.yml` file included there:
 
     cat docker-compose.yml
 
-Insert your Dockerhub username and start the two defined containers in detached mode:
+Edit the file to insert your Dockerhub username and start the two defined containers in detached mode:
 
     docker-compose up -d
     
-Check that the container for `myapp` has been assigned a pseudo-random name, and `someclient` is executing a different command.
+Check that the container for `myapp` has been assigned a _pseudo-random name_, and `someclient` is executing a different command.
 
     docker ps -a
     
-Connect to `someclient` and ping `myapp` by its name, defined in the YAML file:
+Connect to `someclient` and ping `myapp` by its name, as defined in the YAML file:
 
     docker exec -it someclient /bin/bash
         ping myapp -c 2
@@ -388,7 +388,7 @@ Remove both containers:
     
 ### 5.2 Example 2 - Load balance
 
-`haproxy` is a load-balancer serving in port 80 and redirecting traffic to containers in `myapp`
+`haproxy` is a load-balancer serving in port 80 and redirecting traffic to _N_ `myapp` containers
 
 Please go to the following directory:
 
@@ -464,7 +464,7 @@ Check you can see the content of that directory, including the sample file, and 
     echo “appended from $(hostname)” >> testfile
     exit
     
-Check in your local host the file has been modified from inside the container, even though the container has now been terminated:
+Check in your local host that the file has been modified from inside the container, even though the container has now been terminated:
 
     cat ~/temp/testfile
     
