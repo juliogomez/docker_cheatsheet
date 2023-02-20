@@ -5,10 +5,11 @@
     + [2.1 Manually](#21-manually)
     + [2.2 With Dockerfile](#22-with-dockerfile)
   * [3. Dockerhub and other registries](#3-dockerhub-and-other-registries)
-  * [4. Basic Networking](#4-basic-networking)
-    + [4.1 Linking containers with variables](#41-linking-containers-with-variables)
-    + [4.2 Linking containers with links](#42-linking-containers-with-links)
-    + [4.3 Linking containers with user networks](#43-linking-containers-with-user-networks)
+  * [4. Networking](#4-networking)
+    + [4.1 The Basics](#41-the-basics)
+    + [4.2 Linking containers with variables](#42-linking-containers-with-variables)
+    + [4.3 Linking containers with links](#43-linking-containers-with-links)
+    + [4.4 Linking containers with user networks](#44-linking-containers-with-user-networks)
   * [5. Docker Compose](#5-docker-compose)
     + [5.1 Example 1 - Connectivity](#51-example-1---connectivity)
     + [5.2 Example 2 - Load balance](#52-example-2---load-balance)
@@ -179,7 +180,9 @@ In order to upload your container to a different registry you would need to buil
     docker build -t <full_domain_name>/<your_id>/myapp .
     docker push <full_domain_name>/<your_id>/myapp
 
-## 4. Basic Networking
+## 4. Networking
+
+### 4.1 The Basics
 
 There is an `eth0` for the container and a peer `veth` in the host, with a virtual bridge from host to container. `iptables` make sure that traffic only flows between containers in the same bridge (default is `docker0`).
 
@@ -274,7 +277,7 @@ curl "localhost:$PORT/cgi-bin/ip"
 docker rm -f myapp
 ```
 
-### 4.1 Linking containers with variables
+### 4.2 Linking containers with variables
 
 This way of linking containers is static and restarting containers will need variables to be updated.
 
@@ -297,7 +300,7 @@ Delete the container:
 
     docker rm -f myapp
 
-### 4.2 Linking containers with links
+### 4.3 Linking containers with links
 
 Run one container:
 
@@ -312,7 +315,7 @@ This link option updates `/etc/hosts` in the new container with an entry for the
 
     cat /etc/hosts
 
-### 4.3 Linking containers with user networks
+### 4.4 Linking containers with user networks
 
 User-defined bridges that automatically discover containers and provide DNS (no `/etc/hosts` used at all)
 
