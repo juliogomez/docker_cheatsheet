@@ -373,7 +373,7 @@ Check that the container for `myapp` has been assigned a _pseudo-random name_, a
     
 Connect to `someclient` and ping `myapp` by its name, as defined in the YAML file:
 
-    docker exec -it someclient /bin/bash
+    docker exec -it someclient sh
         ping myapp -c 2
         exit
         
@@ -409,7 +409,7 @@ Check port mapping for `haproxy` (host 80 to haproxy 80) and `containerip` using
     
 Obtain `myapp` containers IP addresses by requesting `haproxy` for it several times:
 
-    curl localhost:80/cgi-bin/ip
+    curl localhost:80/cgi-bin/ipa
 
 You will see the IP changes as `haproxy` load-balances requests to the available `myapp` containers.
 
@@ -462,7 +462,7 @@ Check you can see the content of that directory, including the sample file, and 
 
     cat /data/testfile
     cd /data/
-    echo “appended from $(hostname)” >> testfile
+    echo "appended from $(hostname)" >> testfile
     exit
     
 Check in your local host that the file has been modified from inside the container, even though the container has now been terminated:
