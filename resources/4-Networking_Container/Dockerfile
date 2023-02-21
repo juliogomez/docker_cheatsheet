@@ -1,5 +1,5 @@
 FROM busybox
-COPY ./ip /home/
-RUN chmod -R 700 /home
+ADD www /www
+RUN chmod -R 700 /www/cgi-bin
 EXPOSE 8000
-CMD /home/ip
+CMD ["/bin/httpd", "-f", "-h", "/www", "-p", "8000"]

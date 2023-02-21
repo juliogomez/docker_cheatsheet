@@ -230,7 +230,7 @@ cd ./resources/4-Networking_Container
 2.- Check the script code that will show your container's IP address.
 
 ```
-cat ./www/cgi-bin/ip
+cat ./www/cgi-bin/ipa
 ```
 
 3.- Check the existing `Dockerfile`.
@@ -239,34 +239,25 @@ cat ./www/cgi-bin/ip
 cat Dockerfile
 ```
 
-4.- Build the image (don't forget the _period sign_ at the end of the command).
+4.- Build the image (don't forget the __.__ at the end of the command).
 
 ```
 docker build -t <your_docker_id>/containerip .
 ```
 
-5.- Run the container that offers its service in TCP port 8000 (please notice it won't be available from the host).
+5.- Instantiate a container and run `ifconfig`, so you can check interface eth0 (the one connected to docker0 virtual bridge) and the IP returned by the HTTP server.
 
 ```
-docker run -d --name myapp <your_docker_id>/containerip
+docker run -it --rm <your_docker_id>/containerip ifconfig
 ```
 
-6.- Connect to the container, check interface eth0 (the one connected to docker0 virtual bridge), and the IP returned by the HTTP server.
-
-```
-docker exec -it myapp /bin/bash
-    ifconfig
-    curl localhost:8000/cgi-bin/ip
-    exit
-docker rm -f myapp
-```
-
-7.- Let's make the service now available from the host by mapping the cointainer port to the host port, and test that it shows the internal IP address of the container.
+6.- Now let's make the service available from the host by mapping the cointainer port to the host port, and test that it shows the internal IP address of the container.
 
 ```
 docker run -d -p 8000:8000 --name myapp <your_docker_id>/containerip
-curl localhost:8000/cgi-bin/ip
 ```
+
+7.- You can use your web browser to check service is available at the host level by going to `http://localhost:8000/cgi-bin/ipa`
 
 8.- Check the host exposed port mapped to the container one.
 
