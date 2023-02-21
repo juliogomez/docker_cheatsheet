@@ -50,7 +50,7 @@ Run a script in Ubuntu and check its logs:
     docker run --name script -d ubuntu /bin/sh -c "while true; do echo hello world; sleep 1; done"
    	docker logs -f script
 	
-Run a NGINX web server (in _detached_ mode so that it runs in the background) in TCP port 80, open a shell, install `vim` and edit the default homepage to see it updates in real-time:
+Run a NGINX web server (in _detached_ mode so that it runs in the background) in TCP port 80, open a shell, install `vim`, edit for example <h1> in the default homepage, save it, use your web browser to access localhost:80 and check how it updates in real-time:
 	
     docker run -d -p 80:80 --name webserver nginx
     docker exec -it webserver /bin/bash
