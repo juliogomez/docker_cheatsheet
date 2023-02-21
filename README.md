@@ -98,7 +98,7 @@ Delete a container image, by deleting its R/O container layers:
 
     docker rmi <container_image_name>
 
-__Important__: before continuing please clone this repository into your local system and go into the new directory.
+__Important__: before moving on to the next exercise please clone this repository into your local system and go into the new directory.
 
     git clone https://github.com/juliogomez/docker_cheatsheet.git
     cd docker_cheatsheet
