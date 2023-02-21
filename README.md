@@ -198,16 +198,26 @@ Check existing local container networks and their associated drivers:
 
 Initially there are no interfaces connected to `docker0`, but let's run the following container and check how it is automatically connected to `bridge` by default:
 
-    docker run -dt --name test alpine sleep infinity
-    docker network inspect bridge
+```
+docker run -dt --name test alpine sleep infinity
+docker network inspect bridge
+```
 
-You can check connectivity by pinging from your host to the IP address of the container (shown in the last command).    
+You can check connectivity by pinging from your container to the IP address of the host (shown in the last command).    
+
+```
+docker exec -it test /bin/sh
+	ping -c5 <ip_host>
+	exit
+```
 
 You may also check connectivity to the outside world from your container:
 
-    docker exec -it test /bin/sh
-        ping -c5 www.github.com
-        exit
+```
+docker exec -it test /bin/sh
+	ping -c5 www.github.com
+	exit
+```
 
 Before we start digging into the networking demo, let's first create a container that responds to HTTP requests with its own IP address:
 
