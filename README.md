@@ -302,7 +302,7 @@ Run one container:
     
 Run an additional container and create a link/alias to the first one to ping it:
 
-    docker run --rm -it --link myapp:container1 <your_docker_id>/containerip /bin/bash
+    docker run --rm -it --link myapp:container1 <your_docker_id>/containerip sh
         ping container1 -c 2
     
 This link option updates `/etc/hosts` in the new container with an entry for the linked container IP. But if that container restarts then this `/etc/hosts` is not updated and will keep pointing to the old IP.
