@@ -265,14 +265,7 @@ docker run -d -p 8000:8000 --name myapp <your_docker_id>/containerip
 docker port myapp
 ```
 
-9.- Assign the port in the host to a variable in your local environment, and run the request again.
-
-```
-PORT=$(docker port myapp | cut -d ":" -f 2)
-curl "localhost:$PORT/cgi-bin/ip"
-```
-
-10.- When you are done please delete the container to start fresh with the next exercise.
+9.- When you are done please delete the container to start fresh with the next exercise.
 
 ```
 docker rm -f myapp
@@ -294,7 +287,7 @@ You may inspect the network and see the IP address assigned to your container:
 
 Run an additional container and pass it the IP address of the first container to ping it:
 
-    docker run --rm -it -e TESTING_IP=$TESTING_IP <your_docker_id>/containerip /bin/bash
+    docker run --rm -it -e TESTING_IP=$TESTING_IP <your_docker_id>/containerip sh
         ping $TESTING_IP -c 2
 
 Delete the container:
