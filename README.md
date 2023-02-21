@@ -309,6 +309,10 @@ This link option updates `/etc/hosts` in the new container with an entry for the
 
     cat /etc/hosts
 
+Delete the container:
+
+    docker rm -f myapp
+
 ### 4.4 Linking containers with user networks
 
 User-defined bridges that automatically discover containers and provide DNS (no `/etc/hosts` used at all)
@@ -328,7 +332,7 @@ You may inspect the network and see the IP addresses assigned to your containers
     
 Connect to the first container and try pinging the second one using its name:
     
-    docker exec -it myapp2 /bin/bash
+    docker exec -it myapp2 sh
         ping myapp1 -c 2
         exit
 
