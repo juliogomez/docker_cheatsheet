@@ -1,8 +1,9 @@
-myapp:
-  image: <your_docker_id>/containerip
-someclient:
-  image: <your_docker_id>/containerip
-  container_name: someclient
-  command: sleep 500
-  links:
-  - myapp
+services:
+  myapp:
+    image: juliocisco/containerip
+  someclient:
+    image: juliocisco/containerip
+    container_name: someclient
+    command: sleep 500
+    links:
+    - myapp
